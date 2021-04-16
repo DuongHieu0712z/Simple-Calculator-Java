@@ -9,6 +9,7 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 
 import javax.swing.GroupLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFrame;
@@ -87,6 +88,8 @@ public class Window extends JFrame {
 
     public Window() {
         super("Calculator");
+        ImageIcon icon = new ImageIcon("src/image/calculator.png");
+        setIconImage(icon.getImage());
         setResizable(false);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
