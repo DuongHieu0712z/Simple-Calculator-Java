@@ -253,6 +253,11 @@ public class Window {
         buttonM = new JButton("M");
         buttonM.setForeground(Color.RED);
         buttonM.setEnabled(false);
+        buttonM.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+            }
+        });
         memoryButtonsPanel.add(buttonM);
     }
 
