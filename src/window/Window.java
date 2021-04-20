@@ -2,6 +2,7 @@ package window;
 
 import java.awt.Font;
 import java.awt.Color;
+import java.awt.Insets;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -27,9 +28,9 @@ import javax.swing.UIManager;
 import calculator.Calculator;
 import symbol.Symbol;
 
-public class Window extends JFrame {
-
-    private static final long serialVersionUID = -7150710923108249953L;
+public class Window {
+    
+    private JFrame frame;
 
     private JMenuBar menuBar;
 
@@ -39,7 +40,7 @@ public class Window extends JFrame {
 
     private JMenu viewMenu;
     private JCheckBoxMenuItem digitGroupingItem;
-    private JCheckBoxMenuItem FEItem;
+    private JCheckBoxMenuItem fixedToExpItem;
 
     private JMenu helpMenu;
     private JMenuItem helpItem;
@@ -70,19 +71,19 @@ public class Window extends JFrame {
     private JButton button8;
     private JButton button9;
 
-    private JButton buttonDot;
-    private JButton buttonPlusMinus;
+    private JButton buttonPercent;
+    private JButton buttonInverse;
+    private JButton buttonSquare;
+    private JButton buttonSquareRoot;
 
     private JButton buttonPlus;
     private JButton buttonMinus;
     private JButton buttonMultiplication;
     private JButton buttonDivision;
-    private JButton buttonEqual;
 
-    private JButton buttonPercent;
-    private JButton buttonInverse;
-    private JButton buttonSquare;
-    private JButton buttonSquareRoot;
+    private JButton buttonDot;
+    private JButton buttonPlusMinus;
+    private JButton buttonEqual;
 
     private JButton buttonBackspace;
     private JButton buttonCE;
@@ -94,42 +95,82 @@ public class Window extends JFrame {
 
     private Calculator calculator = new Calculator();
     private Stack<Double> memoryStore = new Stack<>();
+
     private boolean hasDigitGrouping = false;
     private boolean hasUnaryOperator = false;
     private boolean hasBinaryOperator = false;
     private boolean isEqualed = false;
 
     public Window() {
-        super("Calculator");
-        ImageIcon icon = new ImageIcon("src/image/calculator.png");
-        setIconImage(icon.getImage());
-        setResizable(false);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        initialize();
+    }
 
+    private void initialize() {
+        setUIManager();
+        initFrame();
+    }
+
+    private void setUIManager() {
         UIManager.put("Menu.font", fontMenu);
         UIManager.put("MenuItem.font", fontMenu);
         UIManager.put("CheckBoxMenuItem.font", fontMenu);
         UIManager.put("Button.font", fontButton);
+        // UIManager.put("Button.margin", new Insets(12, 12, 12, 12));
+    }
 
+    private void initFrame() {
+        frame = new JFrame("Calculator");
+        ImageIcon icon = new ImageIcon("src/image/calculator.png");
+        frame.setIconImage(icon.getImage());
+        frame.setResizable(false);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        initMenuBar();
+        initContentPane();
+
+        frame.pack();
+    }
+
+    private void initMenuBar() {
         menuBar = new JMenuBar();
-        setJMenuBar(menuBar);
+        frame.setJMenuBar(menuBar);
+        
+        initEditMenu();
+        initViewMenu();
+        initHelpMenu();
+    }
 
+    private void initEditMenu() {
         editMenu = new JMenu("Edit");
         editMenu.setMnemonic('E');
         menuBar.add(editMenu);
 
+        initCopyItem();
+        initPasteItem();
+    }
+
+    private void initCopyItem() {
         copyItem = new JMenuItem("Copy");
         copyItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_DOWN_MASK));
         editMenu.add(copyItem);
+    }
 
+    private void initPasteItem() {
         pasteItem = new JMenuItem("Paste");
         pasteItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, InputEvent.CTRL_DOWN_MASK));
         editMenu.add(pasteItem);
+    }
 
+    private void initViewMenu() {
         viewMenu = new JMenu("View");
         viewMenu.setMnemonic('V');
         menuBar.add(viewMenu);
 
+        initDigitGroupingItem();
+        initFixedToExpItem();
+    }
+
+    private void initDigitGroupingItem() {
         digitGroupingItem = new JCheckBoxMenuItem("Digit grouping");
         digitGroupingItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_COMMA, InputEvent.ALT_DOWN_MASK));
         digitGroupingItem.addItemListener(new ItemListener() {
@@ -140,46 +181,84 @@ public class Window extends JFrame {
             }
         });
         viewMenu.add(digitGroupingItem);
+    }
 
-        FEItem = new JCheckBoxMenuItem("F-E");
-        FEItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_PERIOD, InputEvent.ALT_DOWN_MASK));
-        viewMenu.add(FEItem);
+    private void initFixedToExpItem() {
+        fixedToExpItem = new JCheckBoxMenuItem("F-E");
+        fixedToExpItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_PERIOD, InputEvent.ALT_DOWN_MASK));
+        viewMenu.add(fixedToExpItem);
+    }
 
+    private void initHelpMenu() {
         helpMenu = new JMenu("Help");
         helpMenu.setMnemonic('H');
         menuBar.add(helpMenu);
+        
+        initHelpItem();
+        initAboutItem();
+        helpMenu.addSeparator();
+        initExitItem();
+    }
 
+    private void initHelpItem() {
         helpItem = new JMenuItem("Help");
         helpMenu.add(helpItem);
+    }
 
+    private void initAboutItem() {
         aboutItem = new JMenuItem("About");
         helpMenu.add(aboutItem);
+    }
 
-        helpMenu.addSeparator();
-
+    private void initExitItem() {
         exitItem = new JMenuItem("Exit");
         exitItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F4, InputEvent.ALT_DOWN_MASK));
         exitItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                dispose();
+                frame.dispose();
             }
         });
         helpMenu.add(exitItem);
+    }
 
+    private void initContentPane() {
+        initTextField();
+        initMemoryButtonsPanel();
+        initNumberButtonsPanel();
+
+        setGroupLayout();
+    }
+
+    private void initTextField() {
         textField = new JTextField("0");
         textField.setFont(fontText);
         textField.setHorizontalAlignment(JTextField.RIGHT);
         textField.setBackground(Color.white);
         textField.setEditable(false);
+    }
 
+    private void initMemoryButtonsPanel() {
         memoryButtonsPanel = new JPanel(new GridLayout(6, 1, 5, 5));
+        
+        initButtonM();
+        initButtonMC();
+        initButtonMR();
+        initButtonMS();
+        initButtonMPlus();
+        initButtonMMinus();
+    }
 
+    private void initButtonM() {
         buttonM = new JButton("M");
+        buttonM.setForeground(Color.RED);
         buttonM.setEnabled(false);
         memoryButtonsPanel.add(buttonM);
+    }
 
+    private void initButtonMC() {
         buttonMC = new JButton("MC");
+        buttonMC.setForeground(Color.RED);
         buttonMC.setEnabled(false);
         buttonMC.addActionListener(new ActionListener() {
             @Override
@@ -187,36 +266,112 @@ public class Window extends JFrame {
                 buttonM.setEnabled(false);
                 buttonMC.setEnabled(false);
                 buttonMR.setEnabled(false);
+
                 memoryStore.clear();
             }
         });
         memoryButtonsPanel.add(buttonMC);
+    }
 
+    private void initButtonMR() {
         buttonMR = new JButton("MR");
+        buttonMR.setForeground(Color.RED);
         buttonMR.setEnabled(false);
         memoryButtonsPanel.add(buttonMR);
+    }
 
+    private void initButtonMS() {
         buttonMS = new JButton("MS");
+        buttonMS.setForeground(Color.RED);
         memoryButtonsPanel.add(buttonMS);
+    }
 
+    private void initButtonMPlus() {
         buttonMPlus = new JButton("M" + Symbol.PLUS);
+        buttonMPlus.setForeground(Color.RED);
         memoryButtonsPanel.add(buttonMPlus);
+    }
 
+    private void initButtonMMinus() {
         buttonMMinus = new JButton("M" + Symbol.MINUS);
+        buttonMMinus.setForeground(Color.RED);
         memoryButtonsPanel.add(buttonMMinus);
+    }
 
+    private void initNumberButtonsPanel() {
         numberButtonsPanel = new JPanel(new GridLayout(6, 4, 5, 5));
 
-        buttonPercent = new JButton(Symbol.PERCENT);
-        buttonPercent.addActionListener(new ActionListener() {
+        buttonPercent = createButtonUnaryOperator(Symbol.PERCENT, Symbol.PERCENT);
+        initButtonCE();
+        initButtonAC();
+        initButtonBackspace();
+
+        buttonInverse = createButtonUnaryOperator("1/x", Symbol.INVERSE);
+        buttonSquare = createButtonUnaryOperator("x" + Symbol.SQUARE, Symbol.SQUARE);
+        buttonSquareRoot = createButtonUnaryOperator(Symbol.SQUARE_ROOT + "x", Symbol.SQUARE_ROOT);
+        buttonDivision = createButtonBinaryOperator(Symbol.DIVISION);
+
+        button7 = createButtonNumber(7);
+        button8 = createButtonNumber(8);
+        button9 = createButtonNumber(9);
+        buttonMultiplication = createButtonBinaryOperator(Symbol.MULTIPLICATION);
+
+        button4 = createButtonNumber(4);
+        button5 = createButtonNumber(5);
+        button6 = createButtonNumber(6);
+        buttonMinus = createButtonBinaryOperator(Symbol.MINUS);
+
+        button1 = createButtonNumber(1);
+        button2 = createButtonNumber(2);
+        button3 = createButtonNumber(3);
+        buttonPlus = createButtonBinaryOperator(Symbol.PLUS);
+
+        button0 = createButtonNumber(0);
+        initButtonDot();
+        initButtonPlusMinus();
+        initButtonEqual();
+    }
+
+    private JButton createButtonNumber(int number) {
+        JButton button = new JButton(String.valueOf(number));
+        button.setForeground(Color.BLUE);
+        button.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                addOperator(Symbol.PERCENT);
+                addNumber(number);
             }
         });
-        numberButtonsPanel.add(buttonPercent);
+        numberButtonsPanel.add(button);
+        return button;
+    }
 
+    private JButton createButtonUnaryOperator(String name, String symbol) {
+        JButton button = new JButton(name);
+        button.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                addOperator(symbol);
+            }
+        });
+        numberButtonsPanel.add(button);
+        return button;
+    }
+
+    private JButton createButtonBinaryOperator(String name) {
+        JButton button = new JButton(name);
+        button.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                addOperator(name);
+            }
+        });
+        numberButtonsPanel.add(button);
+        return button;
+    }
+
+    private void initButtonCE() {
         buttonCE = new JButton("CE");
+        buttonCE.setForeground(Color.RED);
         buttonCE.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -224,8 +379,11 @@ public class Window extends JFrame {
             }
         });
         numberButtonsPanel.add(buttonCE);
+    }
 
+    private void initButtonAC() {
         buttonAC = new JButton("AC");
+        buttonAC.setForeground(Color.RED);
         buttonAC.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -238,8 +396,11 @@ public class Window extends JFrame {
             }
         });
         numberButtonsPanel.add(buttonAC);
+    }
 
+    private void initButtonBackspace() {
         buttonBackspace = new JButton(Symbol.BACKSPACE);
+        buttonBackspace.setForeground(Color.RED);
         buttonBackspace.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -247,161 +408,11 @@ public class Window extends JFrame {
             }
         });
         numberButtonsPanel.add(buttonBackspace);
+    }
 
-        buttonInverse = new JButton("1/x");
-        buttonInverse.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                addOperator(Symbol.INVERSE);
-            }
-        });
-        numberButtonsPanel.add(buttonInverse);
-
-        buttonSquare = new JButton("x" + Symbol.SQUARE);
-        buttonSquare.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                addOperator(Symbol.SQUARE);
-            }
-        });
-        numberButtonsPanel.add(buttonSquare);
-
-        buttonSquareRoot = new JButton(Symbol.SQUARE_ROOT + "x");
-        buttonSquareRoot.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                addOperator(Symbol.SQUARE_ROOT);
-            }
-        });
-        numberButtonsPanel.add(buttonSquareRoot);
-
-        buttonDivision = new JButton(Symbol.DIVISION);
-        buttonDivision.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                addOperator(Symbol.DIVISION);
-            }
-        });
-        numberButtonsPanel.add(buttonDivision);
-
-        button7 = new JButton("7");
-        button7.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                addNumber(7);
-            }
-        });
-        numberButtonsPanel.add(button7);
-
-        button8 = new JButton("8");
-        button8.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                addNumber(8);
-            }
-        });
-        numberButtonsPanel.add(button8);
-
-        button9 = new JButton("9");
-        button9.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                addNumber(9);
-            }
-        });
-        numberButtonsPanel.add(button9);
-
-        buttonMultiplication = new JButton(Symbol.MULTIPLICATION);
-        buttonMultiplication.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                addOperator(Symbol.MULTIPLICATION);
-            }
-        });
-        numberButtonsPanel.add(buttonMultiplication);
-
-        button4 = new JButton("4");
-        button4.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                addNumber(4);
-            }
-        });
-        numberButtonsPanel.add(button4);
-
-        button5 = new JButton("5");
-        button5.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                addNumber(5);
-            }
-        });
-        numberButtonsPanel.add(button5);
-
-        button6 = new JButton("6");
-        button6.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                addNumber(6);
-            }
-        });
-        numberButtonsPanel.add(button6);
-
-        buttonMinus = new JButton(Symbol.MINUS);
-        buttonMinus.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                addOperator(Symbol.MINUS);
-            }
-        });
-        numberButtonsPanel.add(buttonMinus);
-
-        button1 = new JButton("1");
-        button1.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                addNumber(1);
-            }
-        });
-        numberButtonsPanel.add(button1);
-
-        button2 = new JButton("2");
-        button2.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                addNumber(2);
-            }
-        });
-        numberButtonsPanel.add(button2);
-
-        button3 = new JButton("3");
-        button3.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                addNumber(3);
-            }
-        });
-        numberButtonsPanel.add(button3);
-
-        buttonPlus = new JButton(Symbol.PLUS);
-        buttonPlus.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                addOperator(Symbol.PLUS);
-            }
-        });
-        numberButtonsPanel.add(buttonPlus);
-
-        button0 = new JButton("0");
-        button0.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                addNumber(0);
-            }
-        });
-        numberButtonsPanel.add(button0);
-
+    private void initButtonDot() {
         buttonDot = new JButton(".");
+        buttonDot.setForeground(Color.BLUE);
         buttonDot.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -409,8 +420,11 @@ public class Window extends JFrame {
             }
         });
         numberButtonsPanel.add(buttonDot);
+    }
 
+    private void initButtonPlusMinus() {
         buttonPlusMinus = new JButton(Symbol.PLUS_MINUS);
+        buttonPlusMinus.setForeground(Color.BLUE);
         buttonPlusMinus.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -434,9 +448,10 @@ public class Window extends JFrame {
             }
         });
         numberButtonsPanel.add(buttonPlusMinus);
+    }
 
+    private void initButtonEqual() {
         buttonEqual = new JButton(Symbol.EQUAL);
-        // buttonEqual.set
         buttonEqual.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -444,10 +459,21 @@ public class Window extends JFrame {
             }
         });
         numberButtonsPanel.add(buttonEqual);
+    }
 
-        setGroupLayout();
+    private void setGroupLayout() {
+        GroupLayout layout = new GroupLayout(frame.getContentPane());
 
-        pack();
+        layout.setAutoCreateGaps(true);
+        layout.setAutoCreateContainerGaps(true);
+
+        layout.setHorizontalGroup(layout.createParallelGroup().addComponent(textField).addGroup(
+                layout.createSequentialGroup().addComponent(memoryButtonsPanel).addComponent(numberButtonsPanel)));
+
+        layout.setVerticalGroup(layout.createSequentialGroup().addComponent(textField).addGroup(
+                layout.createParallelGroup().addComponent(memoryButtonsPanel).addComponent(numberButtonsPanel)));
+
+        frame.getContentPane().setLayout(layout);
     }
 
     private void digitGrouping() {
@@ -593,23 +619,8 @@ public class Window extends JFrame {
         digitGrouping();
     }
 
-    private void setGroupLayout() {
-        GroupLayout layout = new GroupLayout(getContentPane());
-
-        layout.setAutoCreateGaps(true);
-        layout.setAutoCreateContainerGaps(true);
-
-        layout.setHorizontalGroup(layout.createParallelGroup().addComponent(textField).addGroup(
-                layout.createSequentialGroup().addComponent(memoryButtonsPanel).addComponent(numberButtonsPanel)));
-
-        layout.setVerticalGroup(layout.createSequentialGroup().addComponent(textField).addGroup(
-                layout.createParallelGroup().addComponent(memoryButtonsPanel).addComponent(numberButtonsPanel)));
-
-        getContentPane().setLayout(layout);
-    }
-
     public void run() {
-        setVisible(true);
+        frame.setVisible(true);
     }
 
 }
