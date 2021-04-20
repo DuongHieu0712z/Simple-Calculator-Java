@@ -263,10 +263,7 @@ public class Window {
         buttonMC.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                buttonM.setEnabled(false);
-                buttonMC.setEnabled(false);
-                buttonMR.setEnabled(false);
-
+                setEnableMemoryButtons(false);
                 memoryStore.clear();
             }
         });
@@ -277,24 +274,85 @@ public class Window {
         buttonMR = new JButton("MR");
         buttonMR.setForeground(Color.RED);
         buttonMR.setEnabled(false);
+        buttonMR.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Double number = memoryStore.peek();
+                calculator.setFirstNumber(number);
+                String text = calculator.getFirstNumberString();
+                textField.setText(text);
+            }
+        });
         memoryButtonsPanel.add(buttonMR);
     }
 
     private void initButtonMS() {
         buttonMS = new JButton("MS");
         buttonMS.setForeground(Color.RED);
+        buttonMS.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Double tempNumber = calculator.getFirstNumber();
+                String text = textField.getText();
+
+                calculator.setFirstNumber(text);
+                memoryStore.push(calculator.getFirstNumber());
+                calculator.setFirstNumber(tempNumber);
+
+                isEqualed = true;
+                setEnableMemoryButtons(true);
+            }
+        });
         memoryButtonsPanel.add(buttonMS);
     }
 
     private void initButtonMPlus() {
         buttonMPlus = new JButton("M" + Symbol.PLUS);
         buttonMPlus.setForeground(Color.RED);
+        buttonMPlus.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (memoryStore.isEmpty()) {
+                    memoryStore.push(Double.valueOf(0));
+                }
+
+                Double tempNumber = calculator.getFirstNumber();
+                String text = textField.getText();
+                Double top = memoryStore.peek();
+
+                calculator.setFirstNumber(text);
+                memoryStore.push(top + calculator.getFirstNumber());
+                calculator.setFirstNumber(tempNumber);
+
+                isEqualed = true;
+                setEnableMemoryButtons(true);
+            }
+        });
         memoryButtonsPanel.add(buttonMPlus);
     }
 
     private void initButtonMMinus() {
         buttonMMinus = new JButton("M" + Symbol.MINUS);
         buttonMMinus.setForeground(Color.RED);
+        buttonMMinus.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (memoryStore.isEmpty()) {
+                    memoryStore.push(Double.valueOf(0));
+                }
+
+                Double tempNumber = calculator.getFirstNumber();
+                String text = textField.getText();
+                Double top = memoryStore.peek();
+
+                calculator.setFirstNumber(text);
+                memoryStore.push(top - calculator.getFirstNumber());
+                calculator.setFirstNumber(tempNumber);
+
+                isEqualed = true;
+                setEnableMemoryButtons(true);
+            }
+        });
         memoryButtonsPanel.add(buttonMMinus);
     }
 
@@ -350,7 +408,7 @@ public class Window {
         button.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                addOperator(symbol);
+                addUnaryOperator(symbol);
             }
         });
         numberButtonsPanel.add(button);
@@ -362,7 +420,7 @@ public class Window {
         button.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                addOperator(name);
+                addBinaryOperator(name);
             }
         });
         numberButtonsPanel.add(button);
@@ -467,13 +525,33 @@ public class Window {
         layout.setAutoCreateGaps(true);
         layout.setAutoCreateContainerGaps(true);
 
-        layout.setHorizontalGroup(layout.createParallelGroup().addComponent(textField).addGroup(
-                layout.createSequentialGroup().addComponent(memoryButtonsPanel).addComponent(numberButtonsPanel)));
+        layout.setHorizontalGroup(
+            layout.createParallelGroup()
+            .addComponent(textField)
+            .addGroup(
+                layout.createSequentialGroup()
+                .addComponent(memoryButtonsPanel)
+                .addComponent(numberButtonsPanel)
+            )
+        );
 
-        layout.setVerticalGroup(layout.createSequentialGroup().addComponent(textField).addGroup(
-                layout.createParallelGroup().addComponent(memoryButtonsPanel).addComponent(numberButtonsPanel)));
+        layout.setVerticalGroup(
+            layout.createSequentialGroup()
+            .addComponent(textField)
+            .addGroup(
+                layout.createParallelGroup()
+                .addComponent(memoryButtonsPanel)
+                .addComponent(numberButtonsPanel)
+            )
+        );
 
         frame.getContentPane().setLayout(layout);
+    }
+
+    private void setEnableMemoryButtons(boolean b) {
+        buttonM.setEnabled(b);
+        buttonMC.setEnabled(b);
+        buttonMR.setEnabled(b);
     }
 
     private void digitGrouping() {
@@ -524,41 +602,46 @@ public class Window {
         digitGrouping();
     }
 
-    private void addOperator(String operator) {
+    private void addUnaryOperator(String operator) {
         String text = textField.getText();
 
-        if (Symbol.UNARY_OPERATOR.contains(operator)) {
-            String tempOperator = calculator.getOperator();
-            calculator.setOperator(operator);
+        String tempOperator = calculator.getOperator();
+        calculator.setOperator(operator);
 
-            if (Double.isNaN(calculator.getFirstNumber())) {
-                calculator.setFirstNumber(text);
-                calculator.calculate();
-                text = calculator.getFirstNumberString();
-                calculator.clearFirstNumber();
-            } else {
-                calculator.setSecondNumber(text);
-                calculator.calculate();
-                text = calculator.getSecondNumberString();
-                calculator.clearSecondNumber();
-            }
-
-            calculator.setOperator(tempOperator);
-            hasUnaryOperator = true;
-        } else {
-            if (Double.isNaN(calculator.getFirstNumber())) {
-                calculator.setFirstNumber(text);
-            } else {
-                calculator.setSecondNumber(text);
-                calculator.calculate();
-                calculator.clearSecondNumber();
-            }
-
+        if (Double.isNaN(calculator.getFirstNumber())) {
+            calculator.setFirstNumber(text);
+            calculator.calculate();
             text = calculator.getFirstNumberString();
-            calculator.setOperator(operator);
-            hasBinaryOperator = true;
+            calculator.clearFirstNumber();
+        } else {
+            calculator.setSecondNumber(text);
+            calculator.calculate();
+            text = calculator.getSecondNumberString();
+            calculator.clearSecondNumber();
         }
 
+        calculator.setOperator(tempOperator);
+        hasUnaryOperator = true;
+
+        textField.setText(text);
+        digitGrouping();
+    }
+
+    private void addBinaryOperator(String operator) {
+        String text = textField.getText();
+ 
+        if (Double.isNaN(calculator.getFirstNumber())) {
+            calculator.setFirstNumber(text);
+        } else {
+            calculator.setSecondNumber(text);
+            calculator.calculate();
+            calculator.clearSecondNumber();
+        }
+
+        text = calculator.getFirstNumberString();
+        calculator.setOperator(operator);
+        hasBinaryOperator = true;
+    
         textField.setText(text);
         digitGrouping();
     }
