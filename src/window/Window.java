@@ -115,7 +115,7 @@ public class Window {
         UIManager.put("MenuItem.font", fontMenu);
         UIManager.put("CheckBoxMenuItem.font", fontMenu);
         UIManager.put("Button.font", fontButton);
-        // UIManager.put("Button.margin", new Insets(12, 12, 12, 12));
+        // UIManager.put("Button.margin", new Insets(5, 5, 5, 5));
     }
 
     private void initFrame() {
