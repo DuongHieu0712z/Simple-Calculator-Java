@@ -4,6 +4,8 @@ import java.awt.Font;
 import java.awt.Color;
 import java.awt.Insets;
 import java.awt.GridLayout;
+import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
@@ -129,6 +131,11 @@ public class Window {
         initContentPane();
 
         frame.pack();
+
+        Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
+        int x = (screen.width - frame.getWidth()) / 2;
+        int y = (screen.height - frame.getHeight()) / 2;
+        frame.setLocation(x, y);
     }
 
     private void initMenuBar() {
@@ -673,18 +680,20 @@ public class Window {
 
     private void backspace() {
         String text = textField.getText();
-        text = text.substring(0, text.length() - 1);
 
-        if (text.isEmpty()) {
-            text = "0";
-        } else if (text.contains(Symbol.MINUS)) {
-            if (text.compareTo(Symbol.MINUS) == 0) {
+        if (!hasUnaryOperator && !hasBinaryOperator && !isEqualed) {
+            text = text.substring(0, text.length() - 1);
+            if (text.isEmpty()) {
                 text = "0";
-            } else if (text.charAt(1) == '0' && !text.contains(".")) {
-                text = "0";
+            } else if (text.contains(Symbol.MINUS)) {
+                if (text.compareTo(Symbol.MINUS) == 0) {
+                    text = "0";
+                } else if (text.charAt(1) == '0' && !text.contains(".")) {
+                    text = "0";
+                }
             }
+            calculator.clearOperator();
         }
-        calculator.clearOperator();
 
         textField.setText(text);
         digitGrouping();
