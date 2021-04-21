@@ -634,13 +634,15 @@ public class Window {
 
     private void addBinaryOperator(String operator) {
         String text = textField.getText();
- 
-        if (Double.isNaN(calculator.getFirstNumber())) {
-            calculator.setFirstNumber(text);
-        } else {
-            calculator.setSecondNumber(text);
-            calculator.calculate();
-            calculator.clearSecondNumber();
+        
+        if (!hasBinaryOperator) {
+            if (Double.isNaN(calculator.getFirstNumber())) {
+                calculator.setFirstNumber(text);
+            } else {
+                calculator.setSecondNumber(text);
+                calculator.calculate();
+                calculator.clearSecondNumber();
+            }
         }
 
         text = calculator.getFirstNumberString();
