@@ -131,11 +131,7 @@ public class Window {
         initContentPane();
 
         frame.pack();
-
-        Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
-        int x = (screen.width - frame.getWidth()) / 2;
-        int y = (screen.height - frame.getHeight()) / 2;
-        frame.setLocation(x, y);
+        frame.setLocationRelativeTo(null);
     }
 
     private void initMenuBar() {
