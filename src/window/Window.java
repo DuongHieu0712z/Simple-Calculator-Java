@@ -24,6 +24,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.UIManager;
+import javax.swing.plaf.ColorUIResource;
 
 import calculator.Calculator;
 import symbol.Symbol;
@@ -115,6 +116,7 @@ public class Window {
         UIManager.put("MenuItem.font", fontMenu);
         UIManager.put("CheckBoxMenuItem.font", fontMenu);
         UIManager.put("Button.font", fontButton);
+        UIManager.put("Button.focus", new ColorUIResource(new Color(0, 0, 0, 0)));
         // UIManager.put("Button.margin", new Insets(5, 5, 5, 5));
     }
 
