@@ -132,6 +132,7 @@ public class Window {
 
         frame.pack();
         frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
     }
 
     private void initMenuBar() {
@@ -713,9 +714,4 @@ public class Window {
         textField.setText(text);
         digitGrouping();
     }
-
-    public void run() {
-        frame.setVisible(true);
-    }
-
 }
